@@ -1,0 +1,81 @@
+version: '3'
+
+env:
+    PROJECT: safecheck
+    TESTS: tests
+    CONDA: micromamba
+
+tasks:
+    env-create:
+        cmd: $CONDA env create -n $PROJECT -f env.yml
+
+    env-remove:
+        cmd: $CONDA env remove -n $PROJECT
+
+    poetry-install:
+        cmd: curl -sSL https://install.python-poetry.org | python -
+
+    poetry-remove:
+        cmd: curl -sSL https://install.python-poetry.org | python - --uninstall
+
+    poetry-update-dev:
+        cmd: poetry add pytest@latest pytest-html@latest hypothesis@latest coverage@latest pytest-cov@latest coverage-badge@latest ruff@latest pre-commit@latest black@latest pyright@latest typing-extensions@latest bandit@latest safety@latest numpy@latest torch@latest jax@latest -G dev
+
+    install-env:
+        cmd: $CONDA env create -n $PROJECT -f env.lock.yml
+
+    install-env-dev:
+        cmd: $CONDA env create -n $PROJECT -f env.dev.lock.yml
+
+    pre-commit-install:
+        cmd: poetry run pre-commit install
+
+    pre-commit:
+        cmd: poetry run pre-commit run --all-files
+
+    format:
+        cmds:
+            - poetry run ruff check $PROJECT --fix
+            - poetry run black --config pyproject.toml $PROJECT $TESTS
+
+    test:
+        cmds:
+            - poetry run pytest -c pyproject.toml --cov-report=html --cov=$PROJECT $TESTS/
+            - poetry run coverage-badge -o assets/coverage.svg -f
+
+    lint:
+        cmds:
+            - poetry run ruff check $PROJECT
+            - poetry run black --diff --check --config pyproject.toml $PROJECT $TESTS
+
+    typing:
+        cmd: poetry run pyright
+
+    safety:
+        cmds:
+            - poetry run safety check --full-report
+            - poetry run bandit -ll --recursive $PROJECT $TESTS
+
+    check:
+        cmds:
+            -   task: lint
+            -   task: typing
+            -   task: safety
+
+    install:
+        cmd: poetry install --all-extras --with dev --no-interaction
+
+    submit:
+        cmds:
+            -   task: format
+            -   task: check
+            -   task: test
+
+    build:
+        cmd: poetry build
+
+    publish:
+        cmd: poetry publish --skip-existing
+
+    sysinfo:
+        cmd: poetry run python .github/system_info.py

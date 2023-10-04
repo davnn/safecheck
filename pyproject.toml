@@ -1,0 +1,175 @@
+# Poetry pyproject.toml: https://python-poetry.org/docs/pyproject/
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "safecheck"
+version = "0.0.1"
+description = "Utilities for typechecking, shapechecking and dispatch."
+readme = "README.md"
+authors = ["David Muhr <muhrdavid+github@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/davnn/safecheck"
+homepage = "https://github.com/davnn/safecheck"
+
+# Keywords description https://python-poetry.org/docs/pyproject/#keywords
+keywords = []
+
+# Pypi classifiers: https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Utilities",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Typing :: Typed"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+beartype = { version = "^0.16.0" }
+jaxtyping = { version = "^0.2.0" }
+plum-dispatch = { version = "^2.2.0" }
+
+[tool.poetry.group.dev.dependencies]
+# testing
+pytest = "^7.4.0"
+pytest-html = "^3.2.0"
+hypothesis = "^6.82.7"
+# coverage
+coverage = "^7.3.0"
+pytest-cov = "^4.1.0"
+coverage-badge = "^1.1.0"
+# linting
+ruff = "^0.0.256"
+pre-commit = "^3.3.3"
+black = "^23.7.0"
+# typing
+pyright = "^1.1.325"
+typing-extensions = "^4.7.1"
+# safety
+bandit = "^1.7.5"
+safety = "^2.3.5"
+# test data
+numpy = "^1.20.0"
+torch = "^2.0.0"
+jax = { version = "^0.4.0", extras = ["cpu"] }
+# notebooks
+notebook = "^7.0.4"
+
+[tool.black]
+# https://github.com/psf/black
+target-version = ["py39"]
+line-length = 120
+color = true
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | env
+    | venv
+)/
+'''
+
+[tool.ruff]
+line-length = 120
+select = ["ALL"]
+extend-exclude = ["tests/", ".github/"]
+force-exclude = true
+ignore = [
+    "D203", # one blank line required before class docstring
+    "D213", # multi line summary should start at second line
+]
+
+[tool.ruff.isort]
+# Combine multiple `from foo import bar as baz` statements with the same source
+# (`foo`) into a single statement.
+combine-as-imports = true
+# Imports of the form `from foo import bar as baz` show one `import bar as baz`
+# per line. Useful for __init__.py files that just re-export symbols.
+force-wrap-aliases = true
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.pyright]
+include = ["safecheck"]
+reportPrivateImportUsage = true
+reportConstantRedefinition = true
+reportDuplicateImport = true
+reportFunctionMemberAccess = true
+reportImportCycles = true
+reportIncompatibleMethodOverride = true
+reportIncompatibleVariableOverride = true
+reportIncompleteStub = "warning"
+reportInconsistentConstructor = true
+reportInvalidStubStatement = "warning"
+reportMatchNotExhaustive = true
+reportMissingParameterType = true
+reportMissingTypeArgument = false
+reportOverlappingOverload = true
+reportPrivateUsage = true
+reportTypeCommentUsage = "warning"
+reportUnknownArgumentType = true
+reportUnknownLambdaType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportUnnecessaryCast = true
+reportUnnecessaryComparison = true
+reportUnnecessaryContains = true
+reportUnnecessaryIsInstance = true
+reportUnnecessaryTypeIgnoreComment = true
+reportUnusedClass = true
+reportUnusedImport = true
+reportUnusedFunction = true
+reportUnusedVariable = true
+reportUnusedExpression = true
+reportUnusedCallResult = true
+reportUntypedBaseClass = true
+reportUntypedClassDecorator = true
+reportUntypedFunctionDecorator = true
+reportUntypedNamedTuple = true
+reportCallInDefaultInitializer = true
+reportImplicitStringConcatenation = true
+reportMissingSuperCall = true
+reportPropertyTypeMismatch = true
+reportUninitializedInstanceVariable = true
+
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/6.2.x/customize.html#pyproject-toml
+# Directories that are not visited by pytest collector:
+norecursedirs = ["hooks", "*.egg", ".eggs", "dist", "build", "docs", ".tox", ".git", "__pycache__"]
+addopts = ["--strict-markers", "--tb=short"]
+filterwarnings = ["ignore::UserWarning"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["tests"]
+branch = true
+
+[tool.coverage.paths]
+source = ["safecheck"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = ["pragma: no cover", "@overload"]
