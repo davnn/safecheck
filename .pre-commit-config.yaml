@@ -5,7 +5,7 @@ default_stages: [ commit, push ]
 
 repos:
     -   repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v4.3.0
+        rev: v4.4.0
         hooks:
             -   id: check-toml
             -   id: check-yaml
@@ -17,7 +17,6 @@ repos:
             -   id: fix-byte-order-marker
             -   id: name-tests-test
                 args: [ --pytest-test-first ]
-                exclude: images/
             -   id: end-of-file-fixer
                 exclude: LICENSE
 
@@ -25,7 +24,7 @@ repos:
         hooks:
             -   id: ruff
                 name: ruff
-                entry: ruff check
+                entry: poetry run ruff check
                 types: [ python ]
                 language: system
 
@@ -33,6 +32,6 @@ repos:
         hooks:
             -   id: black
                 name: black
-                entry: black --config pyproject.toml
+                entry: poetry run black --config pyproject.toml
                 types: [ python ]
                 language: system
