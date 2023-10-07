@@ -14,8 +14,8 @@ from beartype import (
 )
 from beartype._data.hint.datahinttyping import BeartypeableT, BeartypeReturn
 from beartype.door import (
-    die_if_unbearable as assert_type,
-    is_bearable as is_type,
+    die_if_unbearable as assert_instance,
+    is_bearable as is_instance,
 )
 from beartype.vale import (
     Is,
@@ -58,9 +58,9 @@ from plum import (
     Kind,
     add_conversion_method,
     add_promotion_rule,
+    conversion_method,
     convert,
     dispatch,
-    overload,  # type: ignore[reportPrivateImportUsage]
     parametric,
     promote,
 )
@@ -70,8 +70,8 @@ __all__ = [
     "typecheck",
     "shapecheck",
     # introspection
-    "is_type",  # like "isinstance(...)"
-    "assert_type",  # like "assert isinstance(...)"
+    "is_instance",  # like "isinstance(...)"
+    "assert_instance",  # like "assert isinstance(...)"
     # validators (runtime only, see https://beartype.readthedocs.io/en/latest/api_vale/)
     "Is",  # Annotated[str, Is[lambda x: x > 0)]]
     "IsAttr",  # Annotated[NumpyArray, IsAttr["ndim", IsEqual[1]]]
@@ -80,10 +80,10 @@ __all__ = [
     "IsInstance",  # Annotated[object, IsInstance[str, bytes]]
     # dispatching
     "dispatch",  # multiple dispatch
-    "overload",  # overload-based dispatch
     "Dispatcher",  # locally-scoped dispatcher
     "convert",  # convert according to given conversion methods
-    "add_conversion_method",  # add new conversion methods
+    "conversion_method",  # decorator for conversion method
+    "add_conversion_method",  # add conversion method
     "promote",  # promote objects to common tpe
     "add_promotion_rule",  # add promotion rules
     "parametric",  # create parametric classes
