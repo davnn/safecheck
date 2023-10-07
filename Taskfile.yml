@@ -7,10 +7,10 @@ env:
 
 tasks:
     env-create:
-        cmd: $CONDA env create -n $PROJECT -f env.yml
+        cmd: $CONDA env create -n $PROJECT --file env.yml --yes
 
     env-remove:
-        cmd: $CONDA env remove -n $PROJECT
+        cmd: $CONDA env remove -n $PROJECT --yes
 
     poetry-install:
         cmd: curl -sSL https://install.python-poetry.org | python -
@@ -20,12 +20,6 @@ tasks:
 
     poetry-update-dev:
         cmd: poetry add pytest@latest pytest-html@latest hypothesis@latest coverage@latest pytest-cov@latest coverage-badge@latest ruff@latest pre-commit@latest black@latest pyright@latest typing-extensions@latest bandit@latest safety@latest numpy@latest torch@latest jax@latest -G dev
-
-    install-env:
-        cmd: $CONDA env create -n $PROJECT -f env.lock.yml
-
-    install-env-dev:
-        cmd: $CONDA env create -n $PROJECT -f env.dev.lock.yml
 
     pre-commit-install:
         cmd: poetry run pre-commit install

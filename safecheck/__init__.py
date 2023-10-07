@@ -112,29 +112,27 @@ __all__ = [
     "UInt64",
     "Complex64",
     "Complex128",
-    # package version
-    "version",
 ]
 
 try:
     from numpy import ndarray as NumpyArray  # noqa: F401, N812
 
     __all__.append("NumpyArray")
-except ImportError:
+except ImportError:  # pragma: no cover
     ...
 
 try:
     from torch import Tensor as TorchArray  # noqa: F401
 
     __all__.append("TorchArray")
-except ImportError:
+except ImportError:  # pragma: no cover
     ...
 
 try:
     from jax import Array as JaxArray  # noqa: F401
 
     __all__.append("JaxArray")
-except ImportError:
+except ImportError:  # pragma: no cover
     ...
 
 
@@ -153,4 +151,4 @@ def get_version() -> str:
         return "unknown"
 
 
-version: str = get_version()
+__version__: str = get_version()
