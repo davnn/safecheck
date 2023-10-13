@@ -8,11 +8,7 @@ We additionally rename some of the functions to be independent of the underlying
 packages. For example, it should be easily possible to switch from beartype to
 typeguard for runtime type checking.
 """
-# re-export everything necessary from beartype, never use beartype itself
-from beartype import (
-    beartype as typecheck,
-)
-from beartype._data.hint.datahinttyping import BeartypeableT, BeartypeReturn
+# re-export everything necessary from beartype, never use beartype itself.
 from beartype.door import (
     die_if_unbearable as assert_instance,
     is_bearable as is_instance,
@@ -49,7 +45,6 @@ from jaxtyping import (
     UInt16,  # type: ignore[reportGeneralTypeIssues]
     UInt32,  # type: ignore[reportGeneralTypeIssues]
     UInt64,  # type: ignore[reportGeneralTypeIssues]
-    jaxtyped as _shapecheck,
 )
 
 # re-export everything necessary from plum, never use plum itself.
@@ -65,10 +60,17 @@ from plum import (
     promote,
 )
 
+from ._protocol import (
+    implements,
+    protocol,
+)
+from ._typecheck import typecheck
+
 __all__ = [
     # decorators (runtime type-checking)
     "typecheck",
-    "shapecheck",
+    "implements",
+    "protocol",
     # introspection
     "is_instance",  # like "isinstance(...)"
     "assert_instance",  # like "assert isinstance(...)"
@@ -134,11 +136,6 @@ try:
     __all__.append("JaxArray")
 except ImportError:  # pragma: no cover
     ...
-
-
-def shapecheck(fn: BeartypeableT) -> BeartypeReturn:
-    """``shapecheck`` implies typecheck."""
-    return _shapecheck(typecheck(fn))
 
 
 def get_version() -> str:

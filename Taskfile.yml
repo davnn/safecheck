@@ -1,25 +1,35 @@
-version: '3'
+version: "3"
 
 env:
     PROJECT: safecheck
-    TESTS: tests
+
+vars:
     CONDA: micromamba
+    TESTS: tests
 
 tasks:
     env-create:
-        cmd: $CONDA env create -n $PROJECT --file env.yml --yes
+        cmd: $CONDA env create -n {{.PROJECT}} --file env.yml --yes
 
     env-remove:
-        cmd: $CONDA env remove -n $PROJECT --yes
+        cmd: $CONDA env remove -n {{.PROJECT}} --yes
 
     poetry-install:
-        cmd: curl -sSL https://install.python-poetry.org | python -
+        cmds:
+            - curl -sSL https://install.python-poetry.org | python -
+            - poetry config virtualenvs.create false
 
     poetry-remove:
         cmd: curl -sSL https://install.python-poetry.org | python - --uninstall
 
     poetry-update-dev:
         cmd: poetry add pytest@latest pytest-html@latest hypothesis@latest coverage@latest pytest-cov@latest pytest-benchmark@latest coverage-badge@latest ruff@latest pre-commit@latest black@latest pyright@latest typing-extensions@latest bandit@latest safety@latest numpy@latest torch@latest jax@latest -G dev
+
+    poetry-use:
+        cmds:
+            - |
+                $CONDA activate {{.PROJECT}}
+                poetry env use system
 
     pre-commit-install:
         cmd: poetry run pre-commit install
@@ -29,18 +39,18 @@ tasks:
 
     format:
         cmds:
-            - poetry run ruff check $PROJECT --fix
-            - poetry run black --config pyproject.toml $PROJECT $TESTS
+            - poetry run ruff check {{.PROJECT}} --fix
+            - poetry run black --config pyproject.toml {{.PROJECT}} {{.TESTS}}
 
     test:
         cmds:
-            - poetry run pytest -c pyproject.toml --cov-report=html --cov=$PROJECT $TESTS/
+            - poetry run pytest -c pyproject.toml --cov-report=html --cov={{.PROJECT}} {{.TESTS}}/
             - poetry run coverage-badge -o assets/coverage.svg -f
 
     lint:
         cmds:
-            - poetry run ruff check $PROJECT
-            - poetry run black --diff --check --config pyproject.toml $PROJECT $TESTS
+            - poetry run ruff check {{.PROJECT}}
+            - poetry run black --diff --check --config pyproject.toml {{.PROJECT}} {{.TESTS}}
 
     typing:
         cmd: poetry run pyright
@@ -48,7 +58,7 @@ tasks:
     safety:
         cmds:
             - poetry run safety check --full-report
-            - poetry run bandit -ll --recursive $PROJECT $TESTS
+            - poetry run bandit -ll --recursive {{.PROJECT}} {{.TESTS}}
 
     check:
         cmds:
