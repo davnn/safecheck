@@ -1,5 +1,3 @@
-import time
-
 import pytest
 from beartype.roar import BeartypeCallHintParamViolation
 
@@ -8,9 +6,6 @@ torch = pytest.importorskip("torch")
 numpy = pytest.importorskip("numpy")
 
 from safecheck import *
-
-benchmark_sleep = 0.001  # time in s per benchmark trial run
-benchmark_args = numpy.random.randn(10, 100)  # dim0=number of args, dim1=size of arg
 
 np_array = numpy.random.randint(low=0, high=1, size=(1,))
 torch_array = torch.randint(low=0, high=1, size=(1,))
@@ -32,7 +27,7 @@ data_types_str = {
 
 @pytest.mark.parametrize("array_type", array_types.keys())
 def test_array_type(array_type):
-    @shapecheck
+    @typecheck
     def f(array: Int[array_type, "..."]) -> Int[array_type, "..."]:
         return array
 
@@ -51,7 +46,7 @@ def test_array_type(array_type):
 @pytest.mark.parametrize("array_type", data_types.keys())
 @pytest.mark.parametrize("data_type", next(iter(data_types.values())).keys())
 def test_data_type(array_type, data_type):
-    @shapecheck
+    @typecheck
     def f(array: data_type[array_type, "..."]) -> data_type[array_type, "..."]:
         return array
 
@@ -114,17 +109,17 @@ def test_array_type_dispatch_with_shapecheck(array_type):
     dispatch = Dispatcher()
 
     @dispatch
-    @shapecheck
+    @typecheck
     def f(_: Shaped[NumpyArray, "..."]) -> str:
         return "numpy"
 
     @dispatch
-    @shapecheck
+    @typecheck
     def f(_: Shaped[TorchArray, "..."]) -> str:
         return "torch"
 
     @dispatch
-    @shapecheck
+    @typecheck
     def f(_: Shaped[JaxArray, "..."]) -> str:
         return "jax"
 
@@ -173,47 +168,3 @@ def test_data_type_dispatch(array_type, data_type):
         return "jax_bool"
 
     assert data_types_str[array_type][data_type] == f(data_types[array_type][data_type])
-
-
-def test_no_overhead(benchmark):
-    def f(*_):
-        time.sleep(benchmark_sleep)
-
-    benchmark(f, *benchmark_args)
-
-
-def test_minimal_decorator(benchmark):
-    def decorate(f):
-        return f
-
-    @decorate
-    def f(*_):
-        time.sleep(benchmark_sleep)
-
-    benchmark(f, *benchmark_args)
-
-
-def test_typecheck_decorator(benchmark):
-    @typecheck
-    def f(*_: NumpyArray):
-        time.sleep(benchmark_sleep)
-
-    benchmark(f, *benchmark_args)
-
-
-def test_shapecheck_decorator(benchmark):
-    @shapecheck
-    def f(*_: Shaped[NumpyArray, "n"]) -> None:
-        time.sleep(benchmark_sleep)
-
-    benchmark(f, *benchmark_args)
-
-
-def test_dispatch_decorator(benchmark):
-    dispatch = Dispatcher()
-
-    @dispatch
-    def f(*_: Shaped[NumpyArray, "n"]):
-        time.sleep(benchmark_sleep)
-
-    benchmark(f, *benchmark_args)

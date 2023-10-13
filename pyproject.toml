@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "safecheck"
-version = "0.0.3"
+version = "0.1.0"
 description = "Utilities for typechecking, shapechecking and dispatch."
 readme = "README.md"
 authors = ["David Muhr <muhrdavid+github@gmail.com>"]
@@ -99,6 +99,8 @@ force-exclude = true
 ignore = [
     "D203", # one blank line required before class docstring
     "D213", # multi line summary should start at second line
+    "ANN101", # missing type annotation for `self` in method
+    "B905", # `zip()` without an explicit `strict=` parameter
 ]
 
 [tool.ruff.isort]
