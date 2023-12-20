@@ -50,7 +50,7 @@ jobs:
                     cache: "poetry"
 
             -   name: Run install
-                run: task install
+                run: task poetry-install
 
             -   name: Make sure torch cpu is used
                 run: poetry run pip install torch  --extra-index-url https://download.pytorch.org/whl/cpu

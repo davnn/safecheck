@@ -1,5 +1,6 @@
 import pytest
 from beartype.roar import BeartypeCallHintParamViolation
+from jaxtyping import TypeCheckError
 
 jax = pytest.importorskip("jax")
 torch = pytest.importorskip("torch")
@@ -39,7 +40,7 @@ def test_array_type(array_type):
         if k == array_type:
             continue
 
-        with pytest.raises(BeartypeCallHintParamViolation):
+        with pytest.raises((TypeCheckError, BeartypeCallHintParamViolation)):
             f(other)
 
 
@@ -59,7 +60,7 @@ def test_data_type(array_type, data_type):
             if current_array_type == array_type and current_data_type == data_type:
                 continue
 
-            with pytest.raises(BeartypeCallHintParamViolation):
+            with pytest.raises((TypeCheckError, BeartypeCallHintParamViolation)):
                 f(current_array)
 
 
@@ -105,7 +106,7 @@ def test_array_type_dispatch_with_typecheck(array_type):
 
 
 @pytest.mark.parametrize("array_type", data_types.keys())
-def test_array_type_dispatch_with_shapecheck(array_type):
+def test_array_type_dispatch_with_typecheck(array_type):
     dispatch = Dispatcher()
 
     @dispatch
