@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "safecheck"
-version = "0.1.0"
+version = "0.2.0"
 description = "Utilities for typechecking, shapechecking and dispatch."
 readme = "README.md"
 authors = ["David Muhr <muhrdavid+github@gmail.com>"]
@@ -40,33 +40,33 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
 beartype = { version = "^0.16.0" }
-jaxtyping = { version = "^0.2.0" }
+jaxtyping = { version = "^0.2.24" }
 plum-dispatch = { version = "^2.2.0" }
 
 [tool.poetry.group.dev.dependencies]
 # testing
-pytest = "^7.4.0"
-pytest-html = "^3.2.0"
+pytest = "^7.4.3"
+pytest-html = "^4.1.1"
 pytest-benchmark = "^4.0.0"
-hypothesis = "^6.82.7"
+hypothesis = "^6.92.1"
 # coverage
-coverage = "^7.3.0"
+coverage = "^7.3.3"
 pytest-cov = "^4.1.0"
 coverage-badge = "^1.1.0"
 # linting
-ruff = "^0.0.256"
-pre-commit = "^3.3.3"
-black = "^23.7.0"
+ruff = "^0.1.8"
+pre-commit = "^3.6.0"
+black = "^23.12.0"
 # typing
-pyright = "^1.1.325"
-typing-extensions = "^4.7.1"
+pyright = "^1.1.342"
+typing-extensions = "^4.9.0"
 # safety
-bandit = "^1.7.5"
+bandit = "^1.7.6"
 safety = "^2.3.5"
 # test data
-numpy = "^1.20.0"
-torch = "^2.0.0"
-jax = { version = "^0.4.0", extras = ["cpu"] }
+numpy = "^1.26.2"
+torch = "^2.1.2"
+jax = "^0.4.23"
 # notebooks
 notebook = "^7.0.4"
 
