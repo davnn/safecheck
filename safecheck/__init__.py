@@ -39,6 +39,7 @@ from jaxtyping import (
     Int64,  # type: ignore[reportGeneralTypeIssues]
     Integer,  # type: ignore[reportGeneralTypeIssues]
     Num,  # type: ignore[reportGeneralTypeIssues]
+    Real,  # type: ignore[reportGeneralTypeIssues]
     Shaped,  # type: ignore[reportGeneralTypeIssues]
     UInt,  # type: ignore[reportGeneralTypeIssues]
     UInt8,  # type: ignore[reportGeneralTypeIssues]
@@ -60,17 +61,11 @@ from plum import (
     promote,
 )
 
-from ._protocol import (
-    implements,
-    protocol,
-)
 from ._typecheck import typecheck
 
 __all__ = [
     # decorators (runtime type-checking)
     "typecheck",
-    "implements",
-    "protocol",
     # introspection
     "is_instance",  # like "isinstance(...)"
     "assert_instance",  # like "assert isinstance(...)"
@@ -93,6 +88,7 @@ __all__ = [
     # union array types
     "Shaped",  # Any type at all (e.g. object or string)
     "Num",  # Any integer, unsigned integer, floating, or complex
+    "Real",  # Any integer, unsigned integer or floating
     "Inexact",  # Any floating or complex
     "Float",  # Any floating point
     "Complex",  # Any complex
@@ -117,23 +113,23 @@ __all__ = [
 ]
 
 try:
-    from numpy import ndarray as NumpyArray  # noqa: F401, N812
+    from numpy import ndarray as NumpyArray  # noqa: N812
 
-    __all__.append("NumpyArray")
+    __all__ += ["NumpyArray"]
 except ImportError:  # pragma: no cover
     ...
 
 try:
-    from torch import Tensor as TorchArray  # noqa: F401
+    from torch import Tensor as TorchArray
 
-    __all__.append("TorchArray")
+    __all__ += ["TorchArray"]
 except ImportError:  # pragma: no cover
     ...
 
 try:
-    from jax import Array as JaxArray  # noqa: F401
+    from jax import Array as JaxArray
 
-    __all__.append("JaxArray")
+    __all__ += ["JaxArray"]
 except ImportError:  # pragma: no cover
     ...
 

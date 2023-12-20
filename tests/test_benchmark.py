@@ -58,11 +58,3 @@ def test_dispatch(benchmark):
 
 def test_dispatch_shaped(benchmark):
     benchmark(dispatch(f_shaped), *args_shaped)
-
-
-def test_protocol(benchmark):
-    benchmark(implements(protocol(f))(f), *args)
-
-
-def test_protocol_shaped(benchmark):
-    benchmark(implements(protocol(f_shaped))(f_shaped), *args_shaped)

@@ -20,6 +20,6 @@ def typecheck(fn: BeartypeableT) -> BeartypeReturn:
     # a base call of beartype's @beartype
     if "jaxtyping" in str(fn.__annotations__):
         # shapecheck implies typecheck
-        return _shapecheck(_typecheck(fn))
+        return _shapecheck(typechecker=_typecheck)(fn)  # type: ignore[reportGeneralTypeIssues]
 
     return _typecheck(fn)
