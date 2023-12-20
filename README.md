@@ -7,8 +7,8 @@
 
 # safecheck
 
-Opinionated combination of typechecking libraries. Safecheck is a (very) minimal wrapper of to provide a unified and
-simple to use interface:
+Opinionated combination of typechecking libraries. Safecheck is a (very) minimal wrapper of the following libraries to
+provide a unified and simple-to-use interface:
 
 - typechecking [beartype](https://github.com/beartype/)
 - shapechecking [jaxtyping](https://github.com/google/jaxtyping)
