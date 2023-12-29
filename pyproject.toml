@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "safecheck"
-version = "0.2.0"
+version = "0.3.0"
 description = "Utilities for typechecking, shapechecking and dispatch."
 readme = "README.md"
 authors = ["David Muhr <muhrdavid+github@gmail.com>"]
@@ -41,7 +41,6 @@ classifiers = [
 python = ">=3.9,<3.13"
 beartype = { version = "^0.16.0" }
 jaxtyping = { version = "^0.2.24" }
-plum-dispatch = { version = "^2.2.0" }
 
 [tool.poetry.group.dev.dependencies]
 # testing
@@ -69,6 +68,8 @@ torch = "^2.1.2"
 jax = "^0.4.23"
 # notebooks
 notebook = "^7.0.4"
+# profiling
+line-profiler = "^4.1.2"
 
 [tool.black]
 # https://github.com/psf/black
