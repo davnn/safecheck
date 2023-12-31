@@ -20,7 +20,7 @@ jobs:
     setup:
         runs-on: ${{ inputs.os }}
         steps:
-            -   uses: actions/checkout@v3
+            -   uses: actions/checkout@v4
 
             -   name: Install Task
                 uses: arduino/setup-task@v1
@@ -44,16 +44,13 @@ jobs:
                 run: echo "/home/runner/.local/bin" >> $GITHUB_PATH
 
             -   name: Set up Python ${{ inputs.python }}
-                uses: actions/setup-python@v4
+                uses: actions/setup-python@v5
                 with:
                     python-version: ${{ inputs.python }}
                     cache: "poetry"
 
             -   name: Run install
                 run: task poetry-install
-
-            -   name: Make sure torch cpu is used
-                run: poetry run pip install torch  --extra-index-url https://download.pytorch.org/whl/cpu
 
             -   name: Command
                 run: ${{ inputs.command }}

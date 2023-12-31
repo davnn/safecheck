@@ -1,12 +1,10 @@
 """Re-exports a subset of the functionality of the following packages.
 
 - beartype
-- plum
 - jaxtyping
 
-We additionally rename some of the functions to be independent of the underlying
-packages. For example, it should be easily possible to switch from beartype to
-typeguard for runtime type checking.
+We additionally rename some of the functions to be independent of the underlying packages. For example,
+it should be easily possible to switch from beartype to typeguard for runtime type checking.
 """
 # re-export everything necessary from beartype, never use beartype itself.
 from beartype.door import (
@@ -48,24 +46,13 @@ from jaxtyping import (
     UInt64,  # type: ignore[reportGeneralTypeIssues]
 )
 
-# re-export everything necessary from plum, never use plum itself.
-from plum import (
-    Dispatcher,
-    Kind,
-    add_conversion_method,
-    add_promotion_rule,
-    conversion_method,
-    convert,
-    dispatch,
-    parametric,
-    promote,
-)
-
+from ._overload import typecheck_overload
 from ._typecheck import typecheck
 
 __all__ = [
     # decorators (runtime type-checking)
     "typecheck",
+    "typecheck_overload",
     # introspection
     "is_instance",  # like "isinstance(...)"
     "assert_instance",  # like "assert isinstance(...)"
@@ -75,16 +62,6 @@ __all__ = [
     "IsEqual",  # Annotated[list, IsEqual[list(range(42))]]
     "IsSubclass",  # Annotated[type, IsSubclass[str, bytes]]
     "IsInstance",  # Annotated[object, IsInstance[str, bytes]]
-    # dispatching
-    "dispatch",  # multiple dispatch
-    "Dispatcher",  # locally-scoped dispatcher
-    "convert",  # convert according to given conversion methods
-    "conversion_method",  # decorator for conversion method
-    "add_conversion_method",  # add conversion method
-    "promote",  # promote objects to common tpe
-    "add_promotion_rule",  # add promotion rules
-    "parametric",  # create parametric classes
-    "Kind",  # convenience parametric class
     # union array types
     "Shaped",  # Any type at all (e.g. object or string)
     "Num",  # Any integer, unsigned integer, floating, or complex

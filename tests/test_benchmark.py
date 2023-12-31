@@ -1,3 +1,5 @@
+from typing_extensions import overload
+
 import numpy
 from beartype import beartype
 
@@ -11,7 +13,7 @@ def decorate(f):
     return f
 
 
-def f(*_: int) -> None:
+def f_basic(*_: int) -> None:
     ...
 
 
@@ -19,8 +21,26 @@ def f_shaped(*_: Shaped[NumpyArray, "n"]) -> None:
     ...
 
 
+@overload
+def f_overload(*_: int) -> None:
+    ...
+
+
+def f_overload(*_):
+    ...
+
+
+@overload
+def f_overload_shaped(*_: Shaped[NumpyArray, "n"]) -> None:
+    ...
+
+
+def f_overload_shaped(*_):
+    ...
+
+
 def test_no_overhead(benchmark):
-    benchmark(f, *args)
+    benchmark(f_basic, *args)
 
 
 def test_no_overhead_shaped(benchmark):
@@ -28,33 +48,40 @@ def test_no_overhead_shaped(benchmark):
 
 
 def test_minimal_overhead(benchmark):
-    benchmark(decorate(f), *args)
+    f = decorate(f_basic)
+    benchmark(f, *args)
 
 
 def test_minimal_overhead_shaped(benchmark):
-    benchmark(decorate(f_shaped), *args_shaped)
+    f = decorate(f_shaped)
+    benchmark(f, *args_shaped)
 
 
 def test_beartype(benchmark):
-    benchmark(beartype(f), *args)
+    f = beartype(f_basic)
+    benchmark(f, *args)
 
 
 def test_beartype_shaped(benchmark):
-    benchmark(beartype(f_shaped), *args_shaped)
+    f = beartype(f_shaped)
+    benchmark(f, *args_shaped)
 
 
 def test_typecheck(benchmark):
-    benchmark(typecheck(f), *args)
+    f = typecheck(f_basic)
+    benchmark(f, *args)
 
 
 def test_typecheck_shaped(benchmark):
-    benchmark(typecheck(f_shaped), *args_shaped)
+    f = typecheck(f_shaped)
+    benchmark(f, *args_shaped)
 
 
-def test_dispatch(benchmark):
-    dispatch = Dispatcher()
-    benchmark(dispatch(f), *args)
+def test_typecheck_overload(benchmark):
+    f = typecheck_overload(f_overload)
+    benchmark(f, *args)
 
 
-def test_dispatch_shaped(benchmark):
-    benchmark(dispatch(f_shaped), *args_shaped)
+def test_typecheck_overload_shaped(benchmark):
+    f = typecheck_overload(f_overload_shaped)
+    benchmark(f, *args_shaped)
