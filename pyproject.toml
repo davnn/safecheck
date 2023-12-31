@@ -65,7 +65,11 @@ bandit = "^1.7.6"
 safety = "^2.3.5"
 # test data
 numpy = "^1.26.2"
-torch = { version = "^2.1.2", source = "pytorch-cpu"}
+torch = [
+    { version = "^2.1.2", platform = "darwin", source = "pypi"},
+    { version = "^2.1.2", platform = "win32", source = "pypi"},
+    { version = "^2.1.2", platform = "linux", source = "pytorch-cpu"}
+]
 jax = { version = "^0.4.23", extras = ["cpu"] }
 # notebooks
 notebook = "^7.0.4"
