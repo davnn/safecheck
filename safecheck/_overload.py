@@ -15,26 +15,24 @@ works as follows:
 3. If a matching overload is found (typecheck successful) return the result, otherwise raise an error.
 """
 import sys
-from collections.abc import Iterable
+import warnings
 from functools import wraps
 from inspect import signature
-from typing import Callable
 
-from beartype._data.hint.datahinttyping import BeartypeableT, BeartypeReturn
-from beartype._util.func.arg.utilfuncargiter import iter_func_args
+from beartype._util.func.arg.utilfuncargiter import ArgKind, iter_func_args
 from beartype.roar import BeartypeCallHintParamViolation, BeartypeCallHintReturnViolation
-from jaxtyping import TypeCheckError
-from typing_extensions import Never, get_overloads, overload
+from beartype.typing import Any, Iterable, Sequence, Tuple
+from jaxtyping import TypeCheckError  # type: ignore[reportGeneralTypeIssues]
+from typing_extensions import Never, get_overloads
 
-from ._typecheck import typecheck
+from ._typecheck import CallableAnyT, raise_if_missing_annotation, typecheck
 
 __all__ = [
-    "overload",
     "typecheck_overload",
 ]
 
 
-class UnexpectedAnnotationError(Exception):
+class UnavailableOverloadError(Exception):
     ...
 
 
@@ -42,15 +40,11 @@ class MissingOverloadError(Exception):
     ...
 
 
-class NoOverloadError(Exception):
-    ...
-
-
 class IncompatibleOverloadError(Exception):
     ...
 
 
-def typecheck_overload(fn: BeartypeableT) -> BeartypeReturn:
+def typecheck_overload(fn: CallableAnyT) -> CallableAnyT:
     """Ensure that an implementing function satisfied at least one of its defined overloads.
 
     To check if the implementing function satisfies one of the overloads, we iterate over all overloads (in definition
@@ -62,29 +56,33 @@ def typecheck_overload(fn: BeartypeableT) -> BeartypeReturn:
 
     :param fn: An implementing function for @overload-decorated specifications.
     :return: Typechecked function or method.
-    :raises: NoOverloadError if no overloads can be determined for ``fn``.
-    :raises: UnexpectedAnnotationError if ``fn`` contains any type annotations.
+    :raises: MissingAnnotationError if ``fn`` does not contain ``__annotations__`` (is no function or method).
+    :raises: MissingOverloadError if no overload can be determined for ``fn``.
     :raises: IncompatibleOverloadError if one of the @overload functions is incompatible with the signature of ``fn``.
-    :raises: MissingOverloadError if no overload matches the input arguments to ``fn``.
+    :raises: UnavailableOverloadError if no overload matches the input arguments to ``fn``.
     """
-    overloads = get_overloads(fn)
-
-    # make sure that overloads are found (registered)
-    if len(overloads) == 0:
-        raise_if_no_overload(fn)
+    # this check must be before the ``len(fn.__annotations__)``, to ensure ``fn`` has ``__annotations__``
+    raise_if_missing_annotation(fn)
 
     # make sure that the implementing fn is not annotated
     if len(fn.__annotations__) > 0:
-        raise_if_unexpected_annotations(fn)
+        warn_if_unexpected_annotation(fn)
+
+    # we are not yet sure if we are dealing with a function, therefore we wrap ``get_overloads`` safely
+    overloads = safe_get_overloads(fn)
+
+    # make sure that at least one overload is found (registered)
+    if len(overloads) == 0:
+        raise_if_no_overload(fn)
 
     # make sure that overloads contain equal parameters as in the implementation
     raise_if_incompatible_overload(fn, overloads)
 
     @wraps(fn)
-    def wrapper(*args, **kwargs):  # noqa: ANN002, ANN003, ANN202
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         result = Never
 
-        def cached_result(*_, **__):  # noqa: ANN002, ANN003, ANN202
+        def cached_result(*_: Any, **__: Any) -> Any:
             # we cache the result of fn(*args, **kwargs), such that it only has to be computed once, even though
             # we might need the result value for multiple return-type checks
             nonlocal result
@@ -92,11 +90,11 @@ def typecheck_overload(fn: BeartypeableT) -> BeartypeReturn:
             return result
 
         for f in overloads:
-            # wrapping the overload function preserves the original signature, but we can add an implementation
-            # that returns the (cached) result of the non-typechecked implementing function ``fn` using a closure
-            cache = wraps(f)(cached_result)
+            # wrapping the overload function preserves the original signature, and we can add an implementation
+            # that returns a cached result of the non-typechecked implementing function ``fn` using a closure
+            cache: CallableAnyT = wraps(f)(cached_result)
             try:
-                return typecheck(cache)(*args, **kwargs)
+                return typecheck(cache, skip_annotation_check=True)(*args, **kwargs)
             except (BeartypeCallHintParamViolation, BeartypeCallHintReturnViolation, TypeCheckError):
                 ...
 
@@ -111,23 +109,23 @@ def typecheck_overload(fn: BeartypeableT) -> BeartypeReturn:
             arg_msg += f"and return value '{result}'"
 
         msg = (
-            f"No overload was found for @typecheck_overload-decorated function '{fn.__qualname__}' {arg_msg}, the "
-            f"available overloads are:\n" + "\n".join(str(signature(o)) for o in overloads)
+            f"No suitable overload was found for @typecheck_overload-decorated function '{fn.__qualname__}' {arg_msg}, "
+            f"the available overloads are:\n" + "\n".join(str(signature(o)) for o in overloads)
         )
-        raise MissingOverloadError(msg)
+        raise UnavailableOverloadError(msg)
 
     return wrapper
 
 
-def raise_if_unexpected_annotations(fn: Callable) -> None:
+def warn_if_unexpected_annotation(fn: CallableAnyT) -> None:
     msg = (
-        f"The function implementing the @overload-decorated definitions should not contain type annotations, "
-        f"because the behaviour would be undefined, but found annotations '{fn.__annotations__}'."
+        f"The function implementing @overload-decorated definitions should not contain type annotations, "
+        f"because the behaviour is not defined, but found annotations '{fn.__annotations__}' which are ignored. "
     )
-    raise UnexpectedAnnotationError(msg)
+    warnings.warn(msg, stacklevel=2)
 
 
-def raise_if_no_overload(fn: Callable) -> None:
+def raise_if_no_overload(fn: CallableAnyT) -> None:
     if sys.version_info < (3, 11):
         additional_help = (
             "Did you use 'from typing import overload'? If this is the case, use 'from typing_extensions import "
@@ -138,14 +136,13 @@ def raise_if_no_overload(fn: Callable) -> None:
         additional_help = "Did you forget to use '@overload'?"
 
     msg = f"Could not find any overload for '{fn.__qualname__}'." + additional_help
-    raise NoOverloadError(msg)
+    raise MissingOverloadError(msg)
 
 
-def raise_if_incompatible_overload(fn: Callable, overloads: Iterable[Callable]) -> None:
-    # [:2] extracts the argument-kind and -name from the resulting tuple
-    args_fn = [arg[:2] for arg in iter_func_args(fn)]
+def raise_if_incompatible_overload(fn: CallableAnyT, overloads: Iterable[CallableAnyT]) -> None:
+    args_fn = tuple(iter_func_args_no_default_value(fn))
     for fn_overload in overloads:
-        args_ov = [arg[:2] for arg in iter_func_args(fn_overload)]
+        args_ov = tuple(iter_func_args_no_default_value(fn_overload))
         if args_ov != args_fn:
             signature_fn = signature(fn)
             signature_overload = signature(fn_overload)
@@ -156,3 +153,21 @@ def raise_if_incompatible_overload(fn: Callable, overloads: Iterable[Callable]) 
                 f"with the implementing function."
             )
             raise IncompatibleOverloadError(msg)
+
+
+def iter_func_args_no_default_value(fn: CallableAnyT) -> Iterable[Tuple[ArgKind, str]]:
+    # it should be safe to use is_unwrap=False, because we don't use the default value
+    for arg in iter_func_args(fn, is_unwrap=False):
+        # [:2] extracts the argument-kind and -name from the resulting tuple
+        yield arg[:2]
+
+
+def safe_get_overloads(fn: CallableAnyT) -> Sequence[CallableAnyT]:
+    try:
+        return get_overloads(fn)
+    except AttributeError:
+        msg = (
+            f"Could not determine overloads for '{fn}' because of missing attributes, maybe the object is no "
+            f"function or method?"
+        )
+    raise MissingOverloadError(msg)

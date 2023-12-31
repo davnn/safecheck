@@ -2,20 +2,21 @@ from types import GenericAlias
 
 from enum import Enum
 
-from typing import Union, Literal, TypedDict, Callable
+from typing import Union, Literal, TypedDict, Callable, TypeVar
 
 import pytest
 from beartype.roar import BeartypeCallHintParamViolation
 from typing_extensions import overload, runtime_checkable, Protocol, Annotated, ParamSpec, Concatenate
 
-from jaxtyping import TypeCheckError
+from jaxtyping import TypeCheckError  # type: ignore[reportGeneralTypeIssues]
 
 jax = pytest.importorskip("jax")
 torch = pytest.importorskip("torch")
 numpy = pytest.importorskip("numpy")
 
 from safecheck import *
-from safecheck._overload import MissingOverloadError
+from safecheck._overload import UnavailableOverloadError, MissingOverloadError, IncompatibleOverloadError
+from safecheck._typecheck import MissingAnnotationError
 
 np_array = numpy.random.randint(low=0, high=1, size=(1,))
 torch_array = torch.randint(low=0, high=1, size=(1,))
@@ -62,6 +63,8 @@ basic_types = {
     OtherAnnotatedType: tuple([1.0]),
     SomeCallableWithParamSpec: lambda x, _: x,
 }
+union_type = Union[tuple(basic_types.keys())]
+generic_type = TypeVar("generic_type", bound=union_type)
 
 array_types = {TorchArray: torch_array, NumpyArray: np_array, JaxArray: jax_array}
 array_types_str = {TorchArray: "torch", NumpyArray: "numpy", JaxArray: "jax"}
@@ -123,26 +126,49 @@ def test_basic_type_overload_method(basic_type):
     check_basic_type(A().f, basic_type)
 
 
-def test_union_type_plain_function():
-    union_type = Union[tuple(basic_types.keys())]
-
+@pytest.mark.parametrize("type_to_check", [union_type, generic_type])
+def test_union_type_plain_function(type_to_check):
     @typecheck
-    def f(array: union_type) -> union_type:
-        return array
+    def f(x: type_to_check) -> type_to_check:
+        return x
 
-    for value in basic_types.values():
-        assert f(value) == value
+    check_union_generic_type(f)
 
 
-def test_parametrized_generic_type_plain_function():
-    union_type = Union[tuple(basic_types.keys())]
+@pytest.mark.parametrize("type_to_check", [union_type, generic_type])
+def test_union_type_overload_function(type_to_check):
+    @overload
+    def f(x: type_to_check) -> type_to_check:
+        ...
 
-    @typecheck
-    def f(array: union_type) -> union_type:
-        return array
+    def f(x):
+        return x
 
-    for value in basic_types.values():
-        assert f(value) == value
+    check_union_generic_type(f)
+
+
+@pytest.mark.parametrize("type_to_check", [union_type, generic_type])
+def test_union_type_plain_method(type_to_check):
+    class A:
+        @overload
+        def f(self, x: type_to_check) -> type_to_check:
+            ...
+
+        @typecheck_overload
+        def f(self, x):
+            return x
+
+    check_union_generic_type(A().f)
+
+
+@pytest.mark.parametrize("type_to_check", [union_type, generic_type])
+def test_union_type_overload_method(type_to_check):
+    class A:
+        @typecheck
+        def f(self, x: type_to_check) -> type_to_check:
+            return x
+
+    check_union_generic_type(A().f)
 
 
 @pytest.mark.parametrize("array_type", data_types.keys())
@@ -195,7 +221,76 @@ def test_array_type_overload_method(array_type, data_type):
     check_array_type(A().f, array_type, data_type)
 
 
+def test_missing_annotation():
+    with pytest.raises(MissingAnnotationError):
+        typecheck(False)
+
+    with pytest.raises(MissingAnnotationError):
+        typecheck_overload(False)
+
+
+def test_missing_overload():
+    def f():
+        ...
+
+    class o:
+        __annotations__ = {}
+
+    with pytest.raises(MissingOverloadError):
+        typecheck_overload(f)
+
+    with pytest.raises(MissingOverloadError):
+        typecheck_overload(o())
+
+
+def test_incompatible_overload():
+    @overload
+    def f(a, b):
+        ...
+
+    def f(a):
+        ...
+
+    with pytest.raises(IncompatibleOverloadError):
+        typecheck_overload(f)
+
+
+def test_warn_overload_annotation():
+    @overload
+    def f(x: int) -> int:
+        ...
+
+    def f(x: float) -> float:
+        return x
+
+    with pytest.warns(UserWarning):
+        typecheck_overload(f)
+
+
+def test_unavailable_overload():
+    @overload
+    def f(x: int) -> int:
+        ...
+
+    def f(x):
+        return x
+
+    with pytest.raises(UnavailableOverloadError):
+        typecheck_overload(f)(1.0)
+
+
+def check_union_generic_type(f):
+    """A union type or generic type with a union bound should type-check valid in all cases of values."""
+    for value in basic_types.values():
+        assert f(value) == value
+
+
 def check_basic_type(f, basic_type):
+    """A basic type with no ambiguities should type check valid only for the specific value and fail otherwise.
+
+    The basic types are constructed such that there are not ambiguities, for example a basic type ``{boolean: False}``
+    would not be a valid test because it is ambiguous with ``int`` as it is a valid integer type in Python.
+    """
     value = basic_types[basic_type]
     assert f(value) == value
 
@@ -208,13 +303,14 @@ def check_basic_type(f, basic_type):
             (
                 TypeCheckError,
                 BeartypeCallHintParamViolation,
-                MissingOverloadError,
+                UnavailableOverloadError,
             )
         ):
             f(other)
 
 
 def check_array_type(f, array_type, data_type):
+    """An array type with no ambiguities should type check valid only for the specific value and fail otherwise."""
     array = data_types[array_type][data_type]
     assert f(array) == array
 
@@ -224,5 +320,5 @@ def check_array_type(f, array_type, data_type):
             if current_array_type == array_type and current_data_type == data_type:
                 continue
 
-            with pytest.raises((TypeCheckError, BeartypeCallHintParamViolation, MissingOverloadError)):
+            with pytest.raises((TypeCheckError, BeartypeCallHintParamViolation, UnavailableOverloadError)):
                 f(current_array)
