@@ -65,12 +65,17 @@ bandit = "^1.7.6"
 safety = "^2.3.5"
 # test data
 numpy = "^1.26.2"
-torch = "^2.1.2"
-jax = "^0.4.23"
+torch = { version = "^2.1.2", source = "pytorch-cpu"}
+jax = { version = "^0.4.23", extras = ["cpu"] }
 # notebooks
 notebook = "^7.0.4"
 # profiling
 line-profiler = "^4.1.2"
+
+[[tool.poetry.source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
 
 [tool.black]
 # https://github.com/psf/black
