@@ -6,11 +6,15 @@
 We additionally rename some of the functions to be independent of the underlying packages. For example,
 it should be easily possible to switch from beartype to typeguard for runtime type checking.
 """
+from warnings import filterwarnings
+
 # re-export everything necessary from beartype, never use beartype itself.
+# additionally ignore the default beartype deprecation warnings.
 from beartype.door import (
     die_if_unbearable as assert_instance,
     is_bearable as is_instance,
 )
+from beartype.roar import BeartypeDecorHintPep585DeprecationWarning
 from beartype.vale import (
     Is,
     IsAttr,
@@ -21,6 +25,7 @@ from beartype.vale import (
 
 # re-export everything necessary from jaxtyping, never use jaxtyping itself
 from jaxtyping import (
+    AbstractDtype,  # type: ignore[reportGeneralTypeIssues]
     Bool,  # type: ignore[reportGeneralTypeIssues]
     Complex,  # type: ignore[reportGeneralTypeIssues]
     Complex64,  # type: ignore[reportGeneralTypeIssues]
@@ -49,6 +54,8 @@ from jaxtyping import (
 from ._overload import typecheck_overload
 from ._typecheck import typecheck
 
+filterwarnings("ignore", category=BeartypeDecorHintPep585DeprecationWarning)
+
 __all__ = [
     # decorators (runtime type-checking)
     "typecheck",
@@ -62,6 +69,8 @@ __all__ = [
     "IsEqual",  # Annotated[list, IsEqual[list(range(42))]]
     "IsSubclass",  # Annotated[type, IsSubclass[str, bytes]]
     "IsInstance",  # Annotated[object, IsInstance[str, bytes]]
+    # abstract type
+    "AbstractDtype",
     # union array types
     "Shaped",  # Any type at all (e.g. object or string)
     "Num",  # Any integer, unsigned integer, floating, or complex

@@ -1,5 +1,4 @@
 import json
-import multiprocessing
 import platform
 import sys
 
@@ -8,11 +7,10 @@ import safecheck
 
 def get_system_info():
     info = {
-        "library": safecheck.version,
+        "library": safecheck.__version__,
         "python": sys.version,
         "platform": platform.platform(),
         "architecture": platform.machine(),
-        "cores": multiprocessing.cpu_count(),
     }
     return info
 
