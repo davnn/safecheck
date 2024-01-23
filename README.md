@@ -87,6 +87,8 @@ for example: ``Annotated[object, IsInstance[str, bytes]]``
 
 #### union array types
 
+Exported union array types from ``safecheck``.
+
     Shaped      # Any type at all (e.g. object or string)
     Num         # Any integer, unsigned integer, floating, or complex
     Real        # Any integer, unsigned integer or floating
@@ -98,6 +100,8 @@ for example: ``Annotated[object, IsInstance[str, bytes]]``
     Int         # Any signed integer
 
 #### concrete array types
+
+Exported array types from ``safecheck``.
 
     Int8
     Int16
