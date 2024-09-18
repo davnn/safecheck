@@ -14,6 +14,7 @@ works as follows:
 2. The overloads are iterated in definition-order until a matching overload is found.
 3. If a matching overload is found (typecheck successful) return the result, otherwise raise an error.
 """
+
 import sys
 import warnings
 from functools import wraps
@@ -32,16 +33,13 @@ __all__ = [
 ]
 
 
-class UnavailableOverloadError(Exception):
-    ...
+class UnavailableOverloadError(Exception): ...
 
 
-class MissingOverloadError(Exception):
-    ...
+class MissingOverloadError(Exception): ...
 
 
-class IncompatibleOverloadError(Exception):
-    ...
+class IncompatibleOverloadError(Exception): ...
 
 
 def typecheck_overload(fn: CallableAnyT) -> CallableAnyT:

@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "safecheck"
-version = "0.3.1"
+version = "0.4.0"
 description = "Utilities for typechecking, shapechecking and dispatch."
 readme = "README.md"
 authors = ["David Muhr <muhrdavid+github@gmail.com>"]
@@ -38,39 +38,39 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
-beartype = { version = "^0.16" }
-jaxtyping = { version = "^0.2.24" }
+python = ">=3.10,<3.13"
+beartype = { version = ">0.15 <0.19" }
+jaxtyping = { version = "^0.2" }
 typing-extensions = { version = "^4.0" }
 
 [tool.poetry.group.dev.dependencies]
 # testing
-pytest = "^7.4.3"
+pytest = "^8.3.3"
 pytest-html = "^4.1.1"
 pytest-benchmark = "^4.0.0"
-hypothesis = "^6.92.2"
+hypothesis = "^6.112.1"
 # coverage
-coverage = "^7.4.0"
-pytest-cov = "^4.1.0"
-coverage-badge = "^1.1.0"
+coverage = "^7.6.1"
+pytest-cov = "^5.0.0"
+coverage-badge = "^1.1.2"
 # linting
-ruff = "^0.1.9"
-pre-commit = "^3.6.0"
-black = "^23.12.1"
+ruff = "^0.6.5"
+pre-commit = "^3.8.0"
+black = "^24.8.0"
 # typing
-pyright = "^1.1.344"
-typing-extensions = "^4.9.0"
+pyright = "^1.1.380"
+typing-extensions = "^4.12.2"
 # safety
-bandit = "^1.7.6"
-safety = "^2.3.5"
+bandit = "^1.7.9"
+safety = "^3.2.7"
 # test data
-numpy = "^1.26.2"
+numpy = "^2.1.1"
 torch = [
-    { version = "^2.1.2", platform = "darwin", source = "pypi" },
-    { version = "^2.1.2", platform = "win32", source = "pypi" },
-    { version = "^2.1.2", platform = "linux", source = "pytorch-cpu" }
+    { version = "^2.4.1", platform = "darwin", source = "pypi" },
+    { version = "^2.4.1", platform = "win32", source = "pypi" },
+    { version = "^2.4.1", platform = "linux", source = "pytorch-cpu" }
 ]
-jax = { version = "^0.4.23", extras = ["cpu"] }
+jax = { version = "^0.4.33", extras = ["cpu"] }
 # notebooks
 notebook = "^7.0.4"
 # profiling
@@ -104,17 +104,17 @@ exclude = '''
 
 [tool.ruff]
 line-length = 120
-select = ["ALL"]
 extend-exclude = ["tests/", ".github/"]
 force-exclude = true
-ignore = [
+lint.select = ["ALL"]
+lint.ignore = [
     "D203", # one blank line required before class docstring
     "D213", # multi line summary should start at second line
     "ANN101", # missing type annotation for `self` in method
     "B905", # `zip()` without an explicit `strict=` parameter
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 # Combine multiple `from foo import bar as baz` statements with the same source
 # (`foo`) into a single statement.
 combine-as-imports = true
@@ -122,7 +122,7 @@ combine-as-imports = true
 # per line. Useful for __init__.py files that just re-export symbols.
 force-wrap-aliases = true
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
 [tool.pyright]

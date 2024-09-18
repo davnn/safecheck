@@ -6,6 +6,7 @@
 We additionally rename some of the functions to be independent of the underlying packages. For example,
 it should be easily possible to switch from beartype to typeguard for runtime type checking.
 """
+
 from warnings import filterwarnings
 
 # re-export everything necessary from beartype, never use beartype itself.

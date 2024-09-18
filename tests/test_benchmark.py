@@ -13,30 +13,24 @@ def decorate(f):
     return f
 
 
-def f_basic(*_: int) -> None:
-    ...
+def f_basic(*_: int) -> None: ...
 
 
-def f_shaped(*_: Shaped[NumpyArray, "n"]) -> None:
-    ...
-
-
-@overload
-def f_overload(*_: int) -> None:
-    ...
-
-
-def f_overload(*_):
-    ...
+def f_shaped(*_: Shaped[NumpyArray, "n"]) -> None: ...
 
 
 @overload
-def f_overload_shaped(*_: Shaped[NumpyArray, "n"]) -> None:
-    ...
+def f_overload(*_: int) -> None: ...
 
 
-def f_overload_shaped(*_):
-    ...
+def f_overload(*_): ...
+
+
+@overload
+def f_overload_shaped(*_: Shaped[NumpyArray, "n"]) -> None: ...
+
+
+def f_overload_shaped(*_): ...
 
 
 def test_no_overhead(benchmark):

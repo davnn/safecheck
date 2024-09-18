@@ -102,8 +102,7 @@ def test_basic_type_plain_method(basic_type):
 @pytest.mark.parametrize("basic_type", basic_types.keys())
 def test_basic_type_overload_function(basic_type):
     @overload
-    def f(x: basic_type) -> basic_type:
-        ...
+    def f(x: basic_type) -> basic_type: ...
 
     @typecheck_overload
     def f(x):
@@ -116,8 +115,7 @@ def test_basic_type_overload_function(basic_type):
 def test_basic_type_overload_method(basic_type):
     class A:
         @overload
-        def f(self, x: basic_type) -> basic_type:
-            ...
+        def f(self, x: basic_type) -> basic_type: ...
 
         @typecheck_overload
         def f(self, x):
@@ -138,8 +136,7 @@ def test_union_type_plain_function(type_to_check):
 @pytest.mark.parametrize("type_to_check", [union_type, generic_type])
 def test_union_type_overload_function(type_to_check):
     @overload
-    def f(x: type_to_check) -> type_to_check:
-        ...
+    def f(x: type_to_check) -> type_to_check: ...
 
     def f(x):
         return x
@@ -151,8 +148,7 @@ def test_union_type_overload_function(type_to_check):
 def test_union_type_plain_method(type_to_check):
     class A:
         @overload
-        def f(self, x: type_to_check) -> type_to_check:
-            ...
+        def f(self, x: type_to_check) -> type_to_check: ...
 
         @typecheck_overload
         def f(self, x):
@@ -185,8 +181,7 @@ def test_array_type_plain_function(array_type, data_type):
 @pytest.mark.parametrize("data_type", next(iter(data_types.values())).keys())
 def test_array_type_overload_function(array_type, data_type):
     @overload
-    def f(array: data_type[array_type, "..."]) -> data_type[array_type, "..."]:
-        ...
+    def f(array: data_type[array_type, "..."]) -> data_type[array_type, "..."]: ...
 
     @typecheck_overload
     def f(array):
@@ -211,8 +206,7 @@ def test_array_type_plain_method(array_type, data_type):
 def test_array_type_overload_method(array_type, data_type):
     class A:
         @overload
-        def f(self, array: data_type[array_type, "..."]) -> data_type[array_type, "..."]:
-            ...
+        def f(self, array: data_type[array_type, "..."]) -> data_type[array_type, "..."]: ...
 
         @typecheck_overload
         def f(self, array):
@@ -230,8 +224,7 @@ def test_missing_annotation():
 
 
 def test_missing_overload():
-    def f():
-        ...
+    def f(): ...
 
     class o:
         __annotations__ = {}
@@ -245,11 +238,9 @@ def test_missing_overload():
 
 def test_incompatible_overload():
     @overload
-    def f(a, b):
-        ...
+    def f(a, b): ...
 
-    def f(a):
-        ...
+    def f(a): ...
 
     with pytest.raises(IncompatibleOverloadError):
         typecheck_overload(f)
@@ -257,8 +248,7 @@ def test_incompatible_overload():
 
 def test_warn_overload_annotation():
     @overload
-    def f(x: int) -> int:
-        ...
+    def f(x: int) -> int: ...
 
     def f(x: float) -> float:
         return x
@@ -269,8 +259,7 @@ def test_warn_overload_annotation():
 
 def test_unavailable_overload():
     @overload
-    def f(x: int) -> int:
-        ...
+    def f(x: int) -> int: ...
 
     def f(x):
         return x
