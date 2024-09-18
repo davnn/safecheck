@@ -9,8 +9,7 @@ __all__ = [
 ]
 
 
-class MissingAnnotationError(Exception):
-    ...
+class MissingAnnotationError(Exception): ...
 
 
 CallableAnyT = Callable[..., Any]
