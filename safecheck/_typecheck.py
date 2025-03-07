@@ -3,9 +3,9 @@ from beartype.typing import Any, Callable, TypeVar, Union
 from jaxtyping import jaxtyped as _shapecheck
 
 __all__ = [
-    "typecheck",
     "CallableAnyT",
     "CheckableT",
+    "typecheck",
 ]
 
 

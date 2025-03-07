@@ -20,5 +20,5 @@
 <!-- Mark with an `x` all the checkboxes that apply (like `[x]`) -->
 
 - [ ] I've read the [`CONTRIBUTING.md`](https://github.com/davnn/safecheck/blob/main/.github/CONTRIBUTING.md) guide.
-- [ ] I've checked the code using `task submit`.
+- [ ] I've checked the code using `task check`.
 - [ ] I've written tests for all new methods and classes that I created.

@@ -57,7 +57,7 @@ from ._typecheck import typecheck
 
 filterwarnings("ignore", category=BeartypeDecorHintPep585DeprecationWarning)
 
-__all__ = [
+__all__ = [  # noqa: RUF022
     # decorators (runtime type-checking)
     "typecheck",
     "typecheck_overload",
