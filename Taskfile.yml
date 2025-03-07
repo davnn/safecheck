@@ -25,19 +25,21 @@ tasks:
     poetry-install:
         cmd: poetry install --all-extras --with dev --no-interaction
 
-    poetry-update-dev:
+    poetry-update-lock:
+        cmd: poetry update
+
+    poetry-update-lock-dev:
         cmd: poetry add pytest@latest pytest-html@latest hypothesis@latest coverage@latest pytest-cov@latest pytest-benchmark@latest coverage-badge@latest ruff@latest pre-commit@latest black@latest pyright@latest typing-extensions@latest bandit@latest safety@latest numpy@latest torch@latest jax@latest -G dev
 
-    poetry-use:
+    poetry-update:
         cmds:
-            - |
-                $CONDA activate {{.PROJECT}}
-                poetry env use system
+            -   task: poetry-update-lock-dev
+            -   task: poetry-update-lock
 
     pre-commit-install:
         cmd: poetry run pre-commit install
 
-    pre-commit:
+    pre-commit-all:
         cmd: poetry run pre-commit run --all-files
 
     format:
@@ -67,13 +69,8 @@ tasks:
         cmds:
             -   task: lint
             -   task: typing
-            -   task: safety
-
-    submit:
-        cmds:
-            -   task: format
-            -   task: check
             -   task: test
+            -   task: safety
 
     build:
         cmd: poetry build

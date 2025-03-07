@@ -19,7 +19,7 @@ Before submitting your code as a pull request please do the following steps:
 7. Run `task safety` to ensure safety checks.
 8. Run `task test` to verify that all tests are passing.
 
-Conveniently, you can run `task submit`, to combine all the mentioned commands. We use [gitmoji](https://gitmoji.dev/)
+Conveniently, you can run `task check`, to combine all the mentioned commands. We use [gitmoji](https://gitmoji.dev/)
 to categorize different kinds of commits.
 
 ## Contributing without `task`
