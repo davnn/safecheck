@@ -100,7 +100,9 @@ __all__ = [  # noqa: RUF022
 ]
 
 try:
-    from numpy import ndarray as NumpyArray  # noqa: N812
+    # numpy 1.21.4 is the first version to support Python 3.10, therefore,
+    # we can expect that ``numpy.typing`` and ``NDArray`` is available.
+    from numpy.typing import NDArray as NumpyArray
 
     __all__ += ["NumpyArray"]
 except ImportError:  # pragma: no cover
