@@ -32,7 +32,7 @@ commands.
 
 We use [micromamba](https://github.com/mamba-org/mamba) to set up a Python environment
 for [poetry](https://python-poetry.org/). Make sure that ``micromamba`` is installed and available. Run
-`task env-create` to create an empty Python 3.9 environment named `safecheck`. After you have successfully created the
+`task env-create` to create an empty Python 3.10 environment named `safecheck`. After you have successfully created the
 conda environment  activate it with `micromamba activate safecheck`. If `poetry` is not already installed, run
 `task poetry-install`. Using the  activated `safecheck` environment check if poetry is using the right environment with
 `poetry env info`. Once the poetry setup is complete, you are ready to install the dependencies.

@@ -27,7 +27,7 @@ imports from ``beartype`` and ``jaxtyping`` if you are using safecheck, e.g. usi
 
 To unify the ``jaxtyping.Array`` interface, we export ``jax.Array as JaxArray`` if
 [Jax](https://github.com/google/jax) is available, ``torch.Tensor as TorchArray`` if
-[PyTorch](https://github.com/pytorch/pytorch) is available and ``numpy.ndarray as NumpyArray`` if
+[PyTorch](https://github.com/pytorch/pytorch) is available and ``numpy.typing.NDArray as NumpyArray`` if
 [NumPy](https://github.com/numpy/numpy) is available.
 
 In addition to the unified ``typecheck``, the library provides a ``typecheck_overload`` decorator.
