@@ -5,6 +5,7 @@ from jaxtyping import jaxtyped as _shapecheck
 __all__ = [
     "CallableAnyT",
     "CheckableT",
+    "raise_if_missing_annotation",
     "typecheck",
 ]
 
@@ -62,8 +63,8 @@ def typecheck(fn: CheckableT, *, skip_annotation_check: bool = False) -> Checkab
     if not skip_annotation_check:
         raise_if_missing_annotation(fn)
 
-    # simply check if there is any mention of jaxtyping in the annotations, this adds barely any overhead to
-    # a base call of beartype's @beartype
+    # simply check if there is any mention of jaxtyping in the annotations,
+    # this adds barely any overhead to a base call of beartype's @beartype
     if "jaxtyping" in str(fn.__annotations__):
         # shapecheck implies typecheck
         return _shapecheck(typechecker=_typecheck)(fn)  # type: ignore[reportGeneralTypeIssues]

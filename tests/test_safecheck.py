@@ -257,7 +257,7 @@ def test_warn_overload_annotation():
         typecheck_overload(f)
 
 
-def test_unavailable_overload():
+def test_unavailable_overload_args():
     @overload
     def f(x: int) -> int: ...
 
@@ -266,6 +266,17 @@ def test_unavailable_overload():
 
     with pytest.raises(UnavailableOverloadError):
         typecheck_overload(f)(1.0)
+
+
+def test_unavailable_overload_kwargs():
+    @overload
+    def f(x: int, *, y: float) -> int: ...
+
+    def f(x, *, y):
+        return x
+
+    with pytest.raises(UnavailableOverloadError):
+        typecheck_overload(f)(1.0, y=1.0)
 
 
 def check_union_generic_type(f):

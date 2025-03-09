@@ -24,7 +24,7 @@ from beartype._util.func.arg.utilfuncargiter import ArgKind, iter_func_args
 from beartype.roar import BeartypeCallHintParamViolation, BeartypeCallHintReturnViolation
 from beartype.typing import Any, Iterable, Sequence, Tuple
 from jaxtyping import TypeCheckError  # type: ignore[reportGeneralTypeIssues]
-from typing_extensions import Never, get_overloads
+from typing_extensions import get_overloads
 
 from ._typecheck import CallableAnyT, raise_if_missing_annotation, typecheck
 
@@ -76,49 +76,52 @@ def typecheck_overload(fn: CallableAnyT) -> CallableAnyT:
     # make sure that overloads contain equal parameters as in the implementation
     raise_if_incompatible_overload(fn, overloads)
 
+    # override the empty overload functions with the implementing function body
+    # this is required for later type checking of the return values
+    for f in overloads:
+        f.__code__ = fn.__code__
+
+    # pre-wrap the overloads for later retrieval in the perf-critical wrapper function
+    typed_overloads = tuple(typecheck(f, skip_annotation_check=True) for f in overloads)
+
     @wraps(fn)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
-        result = Never
-
-        def cached_result(*_: Any, **__: Any) -> Any:
-            # we cache the result of fn(*args, **kwargs), such that it only has to be computed once, even though
-            # we might need the result value for multiple return-type checks
-            nonlocal result
-            result = fn(*args, **kwargs) if result is Never else result
-            return result
-
-        for f in overloads:
-            # wrapping the overload function preserves the original signature, and we can add an implementation
-            # that returns a cached result of the non-typechecked implementing function ``fn` using a closure
-            cache: CallableAnyT = wraps(f)(cached_result)
+        for f in typed_overloads:
             try:
-                return typecheck(cache, skip_annotation_check=True)(*args, **kwargs)
+                return f(*args, **kwargs)
             except (BeartypeCallHintParamViolation, BeartypeCallHintReturnViolation, TypeCheckError):
-                ...
+                continue
 
-        arg_msg = "without arguments"
-        if (has_args := len(args) > 0) ^ (len(kwargs) > 0):
-            arg_msg = f"with arguments '{args if has_args else kwargs}'"
-
-        if len(args) > 0 and len(kwargs) > 0:
-            arg_msg = f"with arguments '{args}' and keywords '{kwargs}'"
-
-        if result is not Never:
-            arg_msg += f"and return value '{result}'"
-
-        msg = (
-            f"No suitable overload was found for @typecheck_overload-decorated function '{fn.__qualname__}' {arg_msg}, "
-            f"the available overloads are:\n" + "\n".join(str(signature(o)) for o in overloads)
-        )
-        raise UnavailableOverloadError(msg)
+        raise_unavailable_overload(fn, overloads, args, kwargs)
 
     return wrapper
+
+
+def raise_unavailable_overload(
+    fn: CallableAnyT,
+    overloads: Sequence[CallableAnyT],
+    args: Any,
+    kwargs: Any,
+) -> None:
+    arg_msg = "without arguments"
+    if (has_args := len(args) > 0) ^ (len(kwargs) > 0):
+        arg_msg = f"with arguments '{args if has_args else kwargs}'"
+
+    if len(args) > 0 and len(kwargs) > 0:
+        arg_msg = f"with arguments '{args}' and keywords '{kwargs}'"
+
+    msg = (
+        f"No suitable overload was found for @typecheck_overload-decorated function '{fn.__qualname__}' {arg_msg}, "
+        f"the available overloads are:\n" + "\n".join(str(signature(o)) for o in overloads)
+    )
+    raise UnavailableOverloadError(msg)
 
 
 def warn_if_unexpected_annotation(fn: CallableAnyT) -> None:
     msg = (
         f"The function implementing @overload-decorated definitions should not contain type annotations, "
-        f"because the behaviour is not defined, but found annotations '{fn.__annotations__}' which are ignored. "
+        f"because the behaviour is not defined for @typecheck_overload, but found annotations '{fn.__annotations__}' "
+        f"which are ignored."
     )
     warnings.warn(msg, stacklevel=2)
 
@@ -155,9 +158,9 @@ def raise_if_incompatible_overload(fn: CallableAnyT, overloads: Iterable[Callabl
 
 def iter_func_args_no_default_value(fn: CallableAnyT) -> Iterable[Tuple[ArgKind, str]]:
     # it should be safe to use is_unwrap=False, because we don't use the default value
-    for arg in iter_func_args(fn, is_unwrap=False):
-        # [:2] extracts the argument-kind and -name from the resulting tuple
-        yield arg[:2]
+    for kind, name, *_ in iter_func_args(fn, is_unwrap=False):
+        # extract the argument kind and name from the resulting tuple
+        yield kind, name
 
 
 def safe_get_overloads(fn: CallableAnyT) -> Sequence[CallableAnyT]:

@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "safecheck"
-version = "0.5.0"
+version = "0.5.1"
 description = "Utilities for typechecking, shapechecking and dispatch."
 readme = "README.md"
 authors = ["David Muhr <muhrdavid+github@gmail.com>"]
@@ -105,9 +105,11 @@ extend-exclude = ["tests/", ".github/"]
 force-exclude = true
 lint.select = ["ALL"]
 lint.ignore = [
-    "D203", # one blank line required before class docstring
-    "D213", # multi line summary should start at second line
-    "B905", # `zip()` without an explicit `strict=` parameter
+    "D203",     # one blank line required before class docstring
+    "D213",     # multi line summary should start at second line
+    "B905",     # `zip()` without an explicit `strict=` parameter
+    "PERF203",  # try-except detected inside loop
+    "RET503",   # required explicit return statement
 ]
 
 [tool.ruff.lint.isort]

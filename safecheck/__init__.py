@@ -7,6 +7,7 @@ We additionally rename some of the functions to be independent of the underlying
 it should be easily possible to switch from beartype to typeguard for runtime type checking.
 """
 
+from typing import Any
 from warnings import filterwarnings
 
 # re-export everything necessary from beartype, never use beartype itself.
@@ -102,8 +103,9 @@ __all__ = [  # noqa: RUF022
 try:
     # numpy 1.21.4 is the first version to support Python 3.10, therefore,
     # we can expect that ``numpy.typing`` and ``NDArray`` is available.
-    from numpy.typing import NDArray as NumpyArray
+    from numpy.typing import NDArray as _NumpyArray
 
+    NumpyArray = _NumpyArray[Any]
     __all__ += ["NumpyArray"]
 except ImportError:  # pragma: no cover
     ...
