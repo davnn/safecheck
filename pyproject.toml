@@ -1,22 +1,18 @@
-# Poetry pyproject.toml: https://python-poetry.org/docs/pyproject/
 [build-system]
-requires = ["poetry_core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling>=1.0.0"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
+[project]
 name = "safecheck"
 version = "0.5.0"
 description = "Utilities for typechecking, shapechecking and dispatch."
 readme = "README.md"
-authors = ["David Muhr <muhrdavid+github@gmail.com>"]
-license = "MIT"
-repository = "https://github.com/davnn/safecheck"
+requires-python = ">=3.10,<3.14"
+license = { text = "MIT" }
+authors = [{ name = "David Muhr", email = "muhrdavid+github@gmail.com" }]
 homepage = "https://github.com/davnn/safecheck"
-
-# Keywords description https://python-poetry.org/docs/pyproject/#keywords
+repository = "https://github.com/davnn/safecheck"
 keywords = []
-
-# Pypi classifiers: https://pypi.org/classifiers/
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
@@ -38,48 +34,43 @@ classifiers = [
     "Typing :: Typed"
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.14"
-beartype = { version = ">0.15 <0.21" }
-jaxtyping = { version = "^0.2" }
-typing-extensions = { version = "^4.0" }
+dependencies = [
+    "beartype>0.15,<0.21",
+    "jaxtyping>=0.2",
+    "typing-extensions>=4.0"
+]
 
-[tool.poetry.group.dev.dependencies]
-# testing
-pytest = "^8.3.5"
-pytest-html = "^4.1.1"
-pytest-benchmark = "^5.1.0"
-hypothesis = "^6.127.9"
-# coverage
-coverage = "^7.6.12"
-pytest-cov = "^6.0.0"
-coverage-badge = "^1.1.2"
-# linting
-ruff = "^0.9.10"
-pre-commit = "^4.1.0"
-black = "^25.1.0"
-# typing
-pyright = "^1.1.396"
-typing-extensions = "^4.12.2"
-# safety
-bandit = "^1.8.3"
-safety = "^3.3.1"
-# test data
-numpy = "^2.2.3"
-torch = "^2.6.0"
-jax = "^0.5.2"
-# notebooks
-notebook = "^7.0.4"
-# profiling
-line-profiler = "^4.1.2"
+[dependency-groups]
+dev = [
+    "bandit>=1.8.6",
+    "black>=25.9.0",
+    "coverage>=7.11.0",
+    "genbadge[coverage]>=1.1.2",
+    "hypothesis>=6.142.4",
+    "jax>=0.6.2",
+    "line-profiler>=5.0.0",
+    "notebook>=7.4.7",
+    "numpy>=2.2.6",
+    "pre-commit>=4.3.0",
+    "pyright[nodejs]>=1.1.407",
+    "pytest>=8.4.2",
+    "pytest-benchmark>=5.1.0",
+    "pytest-cov>=7.0.0",
+    "pytest-html>=4.1.1",
+    "ruff>=0.14.2",
+    "torch>=2.9.0",
+    "typing-extensions>=4.15.0",
+]
 
-[[tool.poetry.source]]
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
-priority = "explicit"
+explicit = true
 
 [tool.black]
-# https://github.com/psf/black
 target-version = ["py39"]
 line-length = 120
 color = true
@@ -105,17 +96,13 @@ extend-exclude = ["tests/", ".github/"]
 force-exclude = true
 lint.select = ["ALL"]
 lint.ignore = [
-    "D203", # one blank line required before class docstring
-    "D213", # multi line summary should start at second line
-    "B905", # `zip()` without an explicit `strict=` parameter
+    "D203",
+    "D213",
+    "B905",
 ]
 
 [tool.ruff.lint.isort]
-# Combine multiple `from foo import bar as baz` statements with the same source
-# (`foo`) into a single statement.
 combine-as-imports = true
-# Imports of the form `from foo import bar as baz` show one `import bar as baz`
-# per line. Useful for __init__.py files that just re-export symbols.
 force-wrap-aliases = true
 
 [tool.ruff.lint.flake8-quotes]
@@ -166,10 +153,8 @@ reportPropertyTypeMismatch = true
 reportUninitializedInstanceVariable = true
 
 [tool.pytest.ini_options]
-# https://docs.pytest.org/en/6.2.x/customize.html#pyproject-toml
-# Directories that are not visited by pytest collector:
 norecursedirs = ["hooks", "*.egg", ".eggs", "dist", "build", "docs", ".tox", ".git", "__pycache__"]
-addopts = ["--strict-markers", "--tb=short"]
+addopts = ["--strict-markers", "--tb=short", "--cov-report=html", "--cov-report=xml"]
 filterwarnings = ["ignore::UserWarning"]
 pythonpath = ["."]
 
