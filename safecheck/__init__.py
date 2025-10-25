@@ -125,7 +125,7 @@ except ImportError:  # pragma: no cover
 
 def get_version() -> str:
     """Return the package version or "unknown" if no version can be found."""
-    from importlib import metadata
+    from importlib import metadata  # noqa: PLC0415
 
     try:
         return metadata.version(__name__)

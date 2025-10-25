@@ -24,26 +24,12 @@ to categorize different kinds of commits.
 
 ## Contributing without `task`
 
-We use [task](https://taskfile.dev/) to provide pre-configured CLI commands for the project, but `task` is
-not required, you can also run the commands directly from the CLI. Have a look at `Taskfile.yml` for a reference of
-commands.
-
-## Set up a poetry environment
-
-We use [micromamba](https://github.com/mamba-org/mamba) to set up a Python environment
-for [poetry](https://python-poetry.org/). Make sure that ``micromamba`` is installed and available. Run
-`task env-create` to create an empty Python 3.10 environment named `safecheck`. After you have successfully created the
-conda environment  activate it with `micromamba activate safecheck`. If `poetry` is not already installed, run
-`task poetry-install`. Using the  activated `safecheck` environment check if poetry is using the right environment with
-`poetry env info`. Once the poetry setup is complete, you are ready to install the dependencies.
-
-Note that Conda is not necessary, you can use a tool of your choice to manage your Python environment. One benefit of
-using Conda is that we can override packages that are not easy to install with `pip`.
+We use [task](https://taskfile.dev/) to provide pre-configured CLI commands for the project, but `task` is not required, you can also run the commands directly from the CLI.
+Have a look at `Taskfile.yml` for a reference of commands.
 
 ## Install dependencies
 
-We use [`poetry`](https://github.com/python-poetry/poetry) to manage the dependencies. With an active poetry env,
-run `task install` to install all dependencies into environment. After the dependencies are installed, run
+We use [`uv`](https://github.com/astral-sh/uv) to manage the dependencies. Run
 `task pre-commit-install` to add the [pre-commit](https://pre-commit.com/) hooks.
 
 ## Other help
