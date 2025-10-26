@@ -19,3 +19,4 @@ repos:
                 args: [ --pytest-test-first ]
             -   id: end-of-file-fixer
                 exclude: LICENSE
+            -   id: no-commit-to-branch
