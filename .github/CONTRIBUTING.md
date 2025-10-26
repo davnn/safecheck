@@ -1,7 +1,6 @@
 # Contributing to `safecheck`
 
-Thanks for contributing! Before implementing features and changes, please submit an issue to discuss  the proposed
-changes.
+Thanks for contributing! Before implementing features and changes, please submit an issue to discuss the proposed changes.
 
 ## How to submit a pull request
 
@@ -19,8 +18,7 @@ Before submitting your code as a pull request please do the following steps:
 7. Run `task safety` to ensure safety checks.
 8. Run `task test` to verify that all tests are passing.
 
-Conveniently, you can run `task check`, to combine all the mentioned commands. We use [gitmoji](https://gitmoji.dev/)
-to categorize different kinds of commits.
+Conveniently, you can run `task check`, to combine all the mentioned commands. We use [gitmoji](https://gitmoji.dev/) to categorize different kinds of commits.
 
 ## Contributing without `task`
 
@@ -34,5 +32,4 @@ We use [`uv`](https://github.com/astral-sh/uv) to manage the dependencies. Run
 
 ## Other help
 
-You can contribute by spreading a word about this library. It would also be a huge contribution to write a short article
-on how you are using this project. You can also share your best practices with us.
+You can contribute by spreading a word about this library. It would also be a huge contribution to write a short article on how you are using this project. You can also share your best practices with us.

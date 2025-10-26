@@ -16,7 +16,7 @@ tasks:
 
     uv-add-dev:
         cmd: |
-            uv add --dev pytest pytest-html hypothesis coverage pytest-cov pytest-benchmark coverage-badge ruff pre-commit black pyright[nodejs] typing-extensions bandit numpy torch jax notebook line-profiler
+            uv add --dev pytest pytest-html hypothesis coverage pytest-cov pytest-benchmark genbadge ruff pre-commit black pyright[nodejs] typing-extensions bandit numpy torch jax notebook line-profiler
 
     pre-commit-install:
         cmd: uv run pre-commit install

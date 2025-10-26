@@ -1,5 +1,0 @@
-security:
-    ignore-vulnerabilities: # Here you can list multiple specific vulnerabilities you want to ignore
-        51457: # Vulnerability in pytest, but a false positive, see https://github.com/pytest-dev/py/issues/287
-            reason: we do not use py
-    continue-on-vulnerability-error: True # Suppress non-zero exit codes when vulnerabilities are found.
